@@ -13,6 +13,7 @@ services:
             - ./dump:/docker-entrypoint-initdb.d
             - ./conf:/etc/mysql/conf.d
             - persistent:/var/lib/mysql
+            - ./www:/var/www/html
         networks:
             - default
     www:
