@@ -1,24 +1,22 @@
 <?php
-// Incluir la conexión a la base de datos
 require_once('mysqli.php');
 
 function obtenerTarea($id) {
-    global $mysqli;  // Usamos la conexión global
+    global $mysqli;
 
     $query = "SELECT id, titulo, descripcion, estado, id_usuario FROM tareas WHERE id = ?";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param("i", $id);  // Vinculamos el ID como parámetro
+    $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         return $result->fetch_assoc();
     } else {
-        return null;  // No se encuentra la tarea
+        return null;
     }
 }
 
-// Verificar si se ha pasado un ID de tarea
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     $tarea = obtenerTarea($id);
@@ -81,7 +79,6 @@ if (isset($_GET['id'])) {
                             <label for="usuario" class="form-label">Usuario</label>
                             <select class="form-select" id="usuario" name="usuario" required>
                                 <?php
-                                    // Obtener los usuarios desde la base de datos
                                     require_once('utils.php');
                                     $usuarios = obtenerUsuarios(); 
                                     foreach ($usuarios as $usuario) {

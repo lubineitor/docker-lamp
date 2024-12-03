@@ -1,35 +1,21 @@
 <?php
-session_start(); // Inicia la sesión para poder usar $_SESSION
+session_start();
 
-// Cambiar la línea de conexión dependiendo de si prefieres usar PDO o MySQLi
-// Incluye la conexión PDO o MySQLi
-include_once('pdo.php'); // Usar PDO
-// include_once('mysqli.php'); // Usar MySQLi
+include_once('pdo.php');
 
-// Verificar si el formulario fue enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Recibir y filtrar los datos del formulario
     $id = $_POST['id'];
     $username = trim($_POST['username']);
     $nombre = trim($_POST['nombre']);
     $apellidos = trim($_POST['apellidos']);
-    $contrasena = $_POST['contrasena']; // Asegúrate de cifrar la contraseña antes de guardarla
+    $contrasena = $_POST['contrasena'];
 
-    // Validar que el usuario existe en la base de datos
-    if (isset($pdo)) { // Usando PDO
         $query = "SELECT * FROM usuarios WHERE id = :id";
         $stmt = $pdo->prepare($query);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT); // Asegúrate de que $id sea una variable
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-    } elseif (isset($mysqli)) { // Usando MySQLi
-        $query = "SELECT * FROM usuarios WHERE id = ?";
-        $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $usuario = $result->fetch_assoc();
-    }
+   
 
     if ($usuario) {
         if (empty($contrasena)) {
@@ -38,44 +24,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $contrasena = $contrasena;
         }
 
-        // Actualizar el usuario en la base de datos
-        if (isset($pdo)) { // Usando PDO
             $query = "UPDATE usuarios SET username = :username, nombre = :nombre, apellidos = :apellidos, contrasena = :contrasena WHERE id = :id";
             $stmt = $pdo->prepare($query);
             $stmt->bindParam(':username', $username, PDO::PARAM_STR);
             $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
             $stmt->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
-            $stmt->bindParam(':contrasena', $contrasena, PDO::PARAM_STR); // Cifra la contraseña
+            $stmt->bindParam(':contrasena', $contrasena, PDO::PARAM_STR);
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
                 $_SESSION['message'] = "Usuario actualizado correctamente.";
-                $_SESSION['message_type'] = 'success'; // Tipo de mensaje
+                $_SESSION['message_type'] = 'success';
             } else {
                 $_SESSION['message'] = "Error al actualizar el usuario.";
-                $_SESSION['message_type'] = 'danger'; // Tipo de mensaje
+                $_SESSION['message_type'] = 'danger';
             }
-        } elseif (isset($mysqli)) { // Usando MySQLi
-            $query = "UPDATE usuarios SET username = ?, nombre = ?, apellidos = ?, contrasena = ? WHERE id = ?";
-            $stmt = $mysqli->prepare($query);
-            $stmt->bind_param("ssssi", $username, $nombre, $apellidos, $contrasena, $id);
 
-            if ($stmt->execute()) {
-                $_SESSION['message'] = "Usuario actualizado correctamente.";
-                $_SESSION['message_type'] = 'success'; // Tipo de mensaje
-            } else {
-                $_SESSION['message'] = "Error al actualizar el usuario.";
-                $_SESSION['message_type'] = 'danger'; // Tipo de mensaje
-            }
-        }
     } else {
         $_SESSION['message'] = "Usuario no encontrado.";
-        $_SESSION['message_type'] = 'danger'; // Tipo de mensaje
+        $_SESSION['message_type'] = 'danger';
     }
 
-    // Redirigir de nuevo a la página de edición para mostrar el mensaje
-    header("Location: editaUsuario.php?id=" . $id); // Asegúrate de redirigir correctamente
-    exit(); // Asegúrate de detener la ejecución del script después de redirigir
+    header("Location: editaUsuario.php?id=" . $id);
+    exit();
 }
 ?>
 

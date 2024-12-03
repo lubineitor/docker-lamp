@@ -1,97 +1,47 @@
 <?php
-session_start(); // Inicia la sesión para poder usar $_SESSION
+session_start();
 
-// Cambia esta línea dependiendo de la conexión que desees usar:
-// Incluye el archivo para la conexión PDO o MySQLi
-include_once('pdo.php');  // Para PDO
-// include_once('mysqli.php');  // Para MySQLi
+include_once('pdo.php');
 
-// Verificar que el ID del usuario esté presente en la URL
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = $_GET['id'];
-
-    // Comprobar si el usuario existe
-    if (isset($pdo)) { // Usando PDO
         $query = "SELECT * FROM usuarios WHERE id = :id";
         $stmt = $pdo->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-    } elseif (isset($mysqli)) { // Usando MySQLi
-        $query = "SELECT * FROM usuarios WHERE id = ?";
-        $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $usuario = $result->fetch_assoc();
-    }
 
     if ($usuario) {
         try {
-            // Comenzar una transacción para garantizar que ambas operaciones (eliminar tareas y el usuario) sean atómicas
-            if (isset($pdo)) { // Usando PDO
-                $pdo->beginTransaction();
-            } elseif (isset($mysqli)) { // Usando MySQLi
-                // Iniciar transacción con MySQLi no es necesario, pero puedes hacerlo si es necesario
-                // MySQLi no soporta transacciones con el mismo flujo que PDO, por lo que esto es opcional
-            }
+            $pdo->beginTransaction();
 
-            // Eliminar todas las tareas asociadas al usuario
-            if (isset($pdo)) { // Usando PDO
                 $query = "DELETE FROM tareas WHERE id_usuario = :id_usuario";
                 $stmt = $pdo->prepare($query);
                 $stmt->bindParam(':id_usuario', $id, PDO::PARAM_INT);
                 $stmt->execute();
-            } elseif (isset($mysqli)) { // Usando MySQLi
-                $query = "DELETE FROM tareas WHERE id_usuario = ?";
-                $stmt = $mysqli->prepare($query);
-                $stmt->bind_param("i", $id);
-                $stmt->execute();
-            }
 
-            // Eliminar el usuario
-            if (isset($pdo)) { // Usando PDO
                 $query = "DELETE FROM usuarios WHERE id = :id";
                 $stmt = $pdo->prepare($query);
                 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-                $stmt->execute();
-            } elseif (isset($mysqli)) { // Usando MySQLi
-                $query = "DELETE FROM usuarios WHERE id = ?";
-                $stmt = $mysqli->prepare($query);
-                $stmt->bind_param("i", $id);
-                $stmt->execute();
-            }
+                $stmt->execute();       
+   
+                $pdo->commit();           
 
-            // Confirmar la transacción
-            if (isset($pdo)) { // Usando PDO
-                $pdo->commit();
-            } elseif (isset($mysqli)) { // Usando MySQLi
-                // Con MySQLi, puedes manejar la transacción si la necesitas explícitamente
-            }
-
-            // Establecer un mensaje de éxito
             $_SESSION['message'] = "Usuario y sus tareas eliminadas correctamente.";
-            $_SESSION['message_type'] = 'success'; // Tipo de mensaje
+            $_SESSION['message_type'] = 'success';
         } catch (Exception $e) {
-            // Si algo falla, revertir la transacción
-            if (isset($pdo)) { // Usando PDO
-                $pdo->rollBack();
-            } elseif (isset($mysqli)) { // Usando MySQLi
-                // No es necesario manejar rollBack explícitamente en MySQLi sin transacciones
-            }
+            $pdo->rollBack();           
 
             $_SESSION['message'] = "Error al borrar el usuario: " . $e->getMessage();
-            $_SESSION['message_type'] = 'danger'; // Tipo de mensaje de error
+            $_SESSION['message_type'] = 'danger';
         }
     } else {
-        // Si el usuario no existe
         $_SESSION['message'] = "Usuario no encontrado.";
-        $_SESSION['message_type'] = 'danger'; // Tipo de mensaje de error
+        $_SESSION['message_type'] = 'danger';
     }
 
-    // Redirigir correctamente a la página de lista de usuarios sin crear un bucle de redirección
-    header("Location: borrarUsuario.php"); // Redirigir sin el ID, ya que es innecesario en este caso
-    exit(); // Asegurarse de que el script termine aquí para evitar que se ejecute código posterior
+    header("Location: borrarUsuario.php");
+    exit();
 }
 ?>
 

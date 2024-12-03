@@ -1,4 +1,3 @@
-<!-- buscaTareas.php -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -28,13 +27,10 @@
                             <select class="form-select" id="usuario" name="usuario" required>
                                 <option value="" selected disabled>Seleccione un usuario</option>
                                 <?php
-                                    // Incluir el archivo de utils.php para acceder a la función que obtiene los usuarios
                                     require_once('utils.php');
                                     
-                                    // Obtener usuarios desde la base de datos
                                     $usuarios = obtenerUsuarios();
                                     
-                                    // Mostrar los usuarios en el select
                                     foreach ($usuarios as $usuario) {
                                         echo "<option value='" . $usuario['id'] . "'>" . $usuario['username'] . "</option>";
                                     }

@@ -1,57 +1,43 @@
 <?php
-// Iniciar la sesión
 session_start();
 
-// Conexión a la base de datos
-include_once('mysqli.php'); // Asegúrate de que este archivo incluya la conexión mysqli
+include_once('mysqli.php');
 
-// Función para almacenar la tarea en la base de datos
 function guardarTarea($titulo, $descripcion, $estado, $usuario) {
-    global $mysqli;  // Usamos la conexión global
+    global $mysqli;
 
-    // Preparamos la consulta
     $stmt = $mysqli->prepare("INSERT INTO tareas (titulo, descripcion, estado, id_usuario) VALUES (?, ?, ?, ?)");
     if ($stmt === false) {
         die("Error al preparar la consulta: " . $mysqli->error);
     }
 
-    // Hacemos un bind de los parámetros y ejecutamos
     $stmt->bind_param('ssss', $titulo, $descripcion, $estado, $usuario);
     $result = $stmt->execute();
 
-    // Cerramos el statement
     $stmt->close();
 
     return $result;
 }
 
-// Validación y filtrado de los datos del formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Recibir y filtrar los datos
     $titulo = filter_var(trim($_POST['titulo']), FILTER_SANITIZE_STRING);
     $descripcion = filter_var(trim($_POST['descripcion']), FILTER_SANITIZE_STRING);
     $estado = filter_var($_POST['estado'], FILTER_SANITIZE_STRING);
     $usuario = filter_var(trim($_POST['usuario']), FILTER_SANITIZE_STRING);
 
-    // Validación de los campos
     if (empty($titulo) || empty($descripcion) || empty($estado) || empty($usuario)) {
-        // Guardar mensaje de error en la sesión
         $_SESSION['message'] = "Todos los campos son obligatorios.";
         $_SESSION['message_type'] = "error";
     } else {
-        // Intentamos guardar la tarea
         if (guardarTarea($titulo, $descripcion, $estado, $usuario)) {
-            // Guardar mensaje de éxito en la sesión
             $_SESSION['message'] = "La tarea se almacenó correctamente.";
             $_SESSION['message_type'] = "success";
         } else {
-            // Guardar mensaje de error en la sesión
             $_SESSION['message'] = "Hubo un error al guardar la tarea.";
             $_SESSION['message_type'] = "error";
         }
     }
 
-    // Redirigir para evitar el reenvío de formularios
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }

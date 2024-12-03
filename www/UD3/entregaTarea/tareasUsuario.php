@@ -1,51 +1,39 @@
 <?php
-// Incluir la conexión PDO
 require_once('pdo.php');
 
-// Función para obtener tareas filtradas por usuario y estado
 function obtenerTareas($usuario = null, $estado = null) {
     global $pdo;
 
-    // Crear la consulta base
     $query = "SELECT t.id, t.titulo, t.descripcion, t.estado, u.username FROM tareas t 
               JOIN usuarios u ON t.id_usuario = u.id";
     
-    // Condiciones para la búsqueda
     $conditions = [];
     $params = [];
 
     if ($usuario) {
-        // Si el usuario está presente, se filtra por el nombre de usuario
         $conditions[] = "t.id_usuario = :usuario";
         $params[':usuario'] = $usuario;
     }
 
     if ($estado) {
-        // Si el estado está presente, se filtra por el estado
         $conditions[] = "t.estado = :estado";
         $params[':estado'] = $estado;
     }
 
-    // Agregar las condiciones a la consulta si existen
     if (count($conditions) > 0) {
         $query .= " WHERE " . implode(" AND ", $conditions);
     }
 
-    // Preparar la consulta
     $stmt = $pdo->prepare($query);
 
-    // Ejecutar la consulta con los parámetros
     $stmt->execute($params);
 
-    // Obtener y devolver los resultados
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Comprobar si se ha enviado el formulario de búsqueda
 $usuario = isset($_GET['usuario']) ? $_GET['usuario'] : null;
 $estado = isset($_GET['estado']) ? $_GET['estado'] : null;
 
-// Obtener las tareas filtradas
 $tareas = obtenerTareas($usuario, $estado);
 ?>
 
@@ -74,7 +62,7 @@ $tareas = obtenerTareas($usuario, $estado);
                     <div class="table">
                         <table class="table table-striped table-hover">
                             <thead class="thead">
-                                <tr>                             <!-- Encabezado de la tabla -->
+                                <tr>
                                     <th>Identificador</th>
                                     <th>Descripción</th>
                                     <th>Estado</th>
@@ -84,7 +72,6 @@ $tareas = obtenerTareas($usuario, $estado);
                             </thead>
                             <tbody>
                                 <?php
-                                    // Si se recibieron parámetros, mostrar tareas filtradas
                                     if ($tareas && count($tareas) > 0) {
                                         foreach ($tareas as $tarea) {
                                             echo '<tr>';

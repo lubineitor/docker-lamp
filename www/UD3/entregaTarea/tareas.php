@@ -1,11 +1,8 @@
 <?php
-// Cambia esta línea dependiendo de la conexión que desees usar:
-// include_once('pdo.php');  // Para PDO
-include_once('mysqli.php');  // Para MySQLi
+include_once('mysqli.php');
 
-// Función para obtener las tareas con el nombre de usuario asociado
 function getTareas() {
-    global $mysqli;  // Usamos la conexión global
+    global $mysqli;
 
     $query = "
         SELECT t.id, t.titulo, t.descripcion, t.estado, u.username 
@@ -13,18 +10,16 @@ function getTareas() {
         JOIN usuarios u ON t.id_usuario = u.id
     ";
 
-    // Ejecutar la consulta
     $result = $mysqli->query($query);
 
-    // Comprobar si la consulta devuelve filas
     if ($result->num_rows > 0) {
         $tareas = [];
         while ($row = $result->fetch_assoc()) {
             $tareas[] = $row;
         }
-        return $tareas;  // Devolver las tareas obtenidas
+        return $tareas;
     } else {
-        return [];  // Si no hay resultados, devolver un array vacío
+        return [];
     }
 }
 
@@ -67,10 +62,8 @@ function getTareas() {
                             </thead>
                             <tbody>
                                 <?php
-                                    // Obtener la lista de tareas
                                     $tareas = getTareas();
                                     
-                                    // Mostrar las tareas
                                     foreach ($tareas as $tarea) {
                                         echo '<tr>';
                                         echo '<td>' . $tarea['id'] . '</td>';
@@ -78,7 +71,6 @@ function getTareas() {
                                         echo '<td>' . $tarea['descripcion'] . '</td>';
                                         echo '<td>' . $tarea['estado'] . '</td>';
                                         echo '<td>' . $tarea['username'] . '</td>';
-                                        // Botones de acción
                                         echo '<td>';
                                         echo '<a href="editaTareaForm.php?id=' . $tarea['id'] . '" class="btn btn-warning btn-sm">Editar</a> ';
                                         echo '<a href="borrarTarea.php?id=' . $tarea['id'] . '" class="btn btn-danger btn-sm">Borrar</a>';

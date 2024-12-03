@@ -1,25 +1,19 @@
 <?php
-// Incluir la conexión a la base de datos
 require_once('mysqli.php');
 
-// Función para eliminar una tarea
 function borrarTarea($id) {
-    global $mysqli;  // Usamos la conexión global
+    global $mysqli;
 
-    // Preparar la consulta de borrado
     $query = "DELETE FROM tareas WHERE id = ?";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param("i", $id);
 
-    // Ejecutar la consulta y devolver el resultado
     return $stmt->execute();
 }
 
-// Verificar si se ha recibido un ID válido en la URL
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    // Verificar si la tarea existe antes de intentar eliminarla
     $query = "SELECT * FROM tareas WHERE id = ?";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param("i", $id);
@@ -27,7 +21,6 @@ if (isset($_GET['id'])) {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        // Si la tarea existe, proceder a eliminarla
         if (borrarTarea($id)) {
             $success = "La tarea ha sido eliminada correctamente.";
         } else {
@@ -65,14 +58,12 @@ if (isset($_GET['id'])) {
                 </div>
 
                 <div class="container justify-content-between">
-                    <!-- Mostrar mensajes de error o éxito -->
                     <?php if (isset($error)): ?>
                         <div class="alert alert-danger"><?php echo $error; ?></div>
                     <?php elseif (isset($success)): ?>
                         <div class="alert alert-success"><?php echo $success; ?></div>
                     <?php endif; ?>
 
-                    <!-- Volver a la lista de tareas -->
                     <a href="tareas.php" class="btn btn-secondary mt-3">Volver a la lista de tareas</a>
                 </div>
             </main>

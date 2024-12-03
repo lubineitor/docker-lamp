@@ -49,7 +49,6 @@
                                 <option value="" selected disabled>Seleccione un usuario</option>
                                 <?php
                                     require_once('utils.php');
-                                    // Asegúrate de que la función obtenerUsuarios esté devolviendo correctamente los usuarios
                                     $usuarios = obtenerUsuarios(); 
                                     foreach ($usuarios as $usuario) {
                                         echo "<option value='" . $usuario['id'] . "'>" . $usuario['username'] . "</option>";

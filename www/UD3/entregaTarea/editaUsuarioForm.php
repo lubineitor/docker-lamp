@@ -1,14 +1,11 @@
 <?php
-session_start(); // Inicia la sesión para poder usar $_SESSION
+session_start();
 
-// Incluir la conexión PDO
-include_once('pdo.php'); // Si prefieres PDO, descomenta esta línea.
+include_once('pdo.php');
 
-// Obtener el ID del usuario desde la URL
 $id = $_GET['id'] ?? null;
 
 if ($id) {
-    // Recuperar los datos del usuario para precargar en el formulario usando PDO
     $query = "SELECT * FROM usuarios WHERE id = :id";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -18,13 +15,13 @@ if ($id) {
     if (!$usuario) {
         $_SESSION['message'] = "Usuario no encontrado.";
         $_SESSION['message_type'] = 'danger';
-        header("Location: listaUsuarios.php"); // Redirigir a la lista de usuarios si no se encuentra el usuario
+        header("Location: listaUsuarios.php");
         exit();
     }
 } else {
     $_SESSION['message'] = "ID de usuario inválido.";
     $_SESSION['message_type'] = 'danger';
-    header("Location: listaUsuarios.php"); // Redirigir a la lista de usuarios si no se proporciona el ID
+    header("Location: listaUsuarios.php");
     exit();
 }
 ?>
@@ -112,7 +109,6 @@ if ($id) {
                     <h2>Editar Usuario</h2>
                 </div>
 
-                <!-- Mostrar el mensaje si existe en la sesión -->
                 <?php if (isset($_SESSION['message'])): ?>
                     <div class="alert alert-<?php echo $_SESSION['message_type']; ?>">
                         <?php
@@ -123,7 +119,6 @@ if ($id) {
                     </div>
                 <?php endif; ?>
 
-                <!-- Formulario de edición -->
                 <form method="POST" action="editaUsuario.php">
                     <input type="hidden" name="id" value="<?php echo $usuario['id']; ?>">
                     

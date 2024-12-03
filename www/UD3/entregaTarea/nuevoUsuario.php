@@ -1,23 +1,19 @@
 <?php
 session_start();
 
-// Incluir el archivo de conexión PDO
 include_once('pdo.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Obtener y limpiar los datos del formulario
     $username = trim($_POST['username']);
     $nombre = trim($_POST['nombre']);
     $apellidos = trim($_POST['apellidos']);
     $contrasena = $_POST['contrasena'];
 
-    // Comprobar si el nombre de usuario ya está registrado
     $query = "SELECT * FROM usuarios WHERE username = :username";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(':username', $username, PDO::PARAM_STR);
     $stmt->execute();
 
-    // Si el nombre de usuario ya existe, redirigir al formulario con mensaje de advertencia
     if ($stmt->rowCount() > 0) {
         $_SESSION['message'] = "El nombre de usuario ya está registrado.";
         $_SESSION['message_type'] = 'warning';
@@ -25,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Insertar el nuevo usuario en la base de datos
     $query = "INSERT INTO usuarios (username, nombre, apellidos, contrasena) 
               VALUES (:username, :nombre, :apellidos, :contrasena)";
     $stmt = $pdo->prepare($query);
